@@ -8,6 +8,7 @@ const institute = require('./routes/institute');
 const service = require('./routes/service');
 const profile = require('./routes/profile');
 const payment = require('./routes/payment');
+const package = require('./routes/package');
 
 const config = require('./config.js');
 const mongoose = require('mongoose');
@@ -32,6 +33,7 @@ app.use('/institute',institute);
 app.use('/service',service);
 app.use('/profile', profile);
 app.use('/payment', payment);
+app.use('/package', package);
 
 var port = process.env.PORT || 3000 
 
