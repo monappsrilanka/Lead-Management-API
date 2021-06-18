@@ -27,15 +27,3 @@ module.exports.register_agent = (agent,callback)=>{
         })
     })    
 };
-
-// update agent details befor finalize registration
-module.exports.update_agent = (contact_no,data,callback)=>{
-    const agent = mongoose.model("agent",agentSchema);
-    agent.findByIdAndUpdate({_id: contact_no},data,{useFindAndModify: false},callback)
-};
-
-// update agent services and finish registration
-module.exports.update_services = (contact_no,data,callback)=>{
-    const agent = mongoose.model("agent",agentSchema);
-    agent.findByIdAndUpdate({_id: contact_no},data,{useFindAndModify: false},callback)
-};

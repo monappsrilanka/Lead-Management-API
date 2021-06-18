@@ -1,12 +1,8 @@
 const jwt = require('jsonwebtoken');
 const SECRET = 'secret'
 
-const generateJWT = (doc,type) => {
-    if (type=="agent"){
-        return jwt.sign({id:doc._id, package:doc.package, type:type},SECRET,{expiresIn : '168h'});
-    } else{
-        return jwt.sign({id:doc._id, type:type},SECRET,{expiresIn : '168h'});
-    }
+const generateJWT = (doc, type) => {
+    return jwt.sign({id:doc._id, package:doc.package, type:type},SECRET,{expiresIn : '168h'});
 }
 
 const authenticateJWT = (req, res, next) => {

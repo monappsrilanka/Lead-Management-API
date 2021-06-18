@@ -5,9 +5,41 @@ const agent = require('../models/agent');
 const institute = require('../models/institute');
 const offer = require('../models/offer');
 const requirement = require('../models/requirement');
+const bcrypt = require('bcryptjs');
 const {authenticateJWT, generateJWT} = require('../authenticate');
 
 const MAX_INST_REQ = 3;
+
+router.get("/profile", authenticateJWT, (req,res)=>{
+    const id = req.tokenData.id;
+
+    let promise1 = client.findOne({_id:id}, {password:0}).exec();
+        promise1.then((doc)=>{
+            if(doc){r
+                es.json({state:true,msg:"Client profile",profile:doc});
+            }  
+            else {
+                res.json({state:false,msg:"Cient not found"});
+            }
+        });
+});
+
+router.post("/login", (req,res)=>{
+    let promise = client.findOne({_id:req.body.username}).exec();
+    promise.then((doc)=>{
+        if(doc){
+            if(checkPassword(doc.password,req.body.password)){
+                let token = generateJWT(doc,"client");
+                res.json({state:true,token:token,full_name:doc.fullname});
+            } else {
+                res.json({state:false, msg:"Invalid credentials. Please try again."});
+            }
+
+        } else {
+            res.json({state:false,msg:"Client not found"});
+        }
+    });
+});
 
 router.post("/register",(req,res)=>{
     const newClient = new client({
@@ -25,7 +57,7 @@ router.post("/register",(req,res)=>{
         }
         if(client){
             let token = generateJWT(client,"client");
-            res.status(201).json({state:true,msg:"User created",full_name:newClient.fullname,token:token,type:"client"});
+            res.status(201).json({state:true,msg:"User created",full_name:newClient.fullname,token:token});
         }
     });
 });
@@ -213,5 +245,9 @@ router.patch("/offer",authenticateJWT,(req,res)=>{
     });
     
 });
+
+const checkPassword = (hash,password)=>{
+    return bcrypt.compareSync(password,hash);
+ };
 
 module.exports =  router;

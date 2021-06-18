@@ -8,3 +8,7 @@ const instituteSchema  = new schema({
 });
 
 module.exports = mongoose.model("institute",instituteSchema);
+
+module.exports.saveInstitute = (institute,callback)=>{
+    institute.save(callback);
+};

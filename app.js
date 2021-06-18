@@ -1,12 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser =  require('body-parser');
+const admin = require('./routes/admin');
 const client = require('./routes/client');
 const agent = require('./routes/agent');
-const login = require('./routes/login');
 const institute = require('./routes/institute');
 const service = require('./routes/service');
-const profile = require('./routes/profile');
 const payment = require('./routes/payment');
 const package = require('./routes/package');
 
@@ -26,12 +25,11 @@ else{
     console.log("Error while accessing database");
 }
 
-app.use('/login',login);
+app.use('/admin',admin);
 app.use('/client',client);
 app.use('/agent',agent);
 app.use('/institute',institute);
 app.use('/service',service);
-app.use('/profile', profile);
 app.use('/payment', payment);
 app.use('/package', package);
 

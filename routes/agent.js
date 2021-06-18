@@ -4,34 +4,61 @@ const agent = require('../models/agent');
 const client = require('../models/client');
 const offer = require('../models/offer');
 const requirement = require('../models/requirement');
-const jwt = require('jsonwebtoken');
-const {authenticateJWT} = require('../authenticate');
+const bcrypt = require('bcryptjs');
+const {authenticateJWT,generateJWT} = require('../authenticate');
 var mongoose = require('mongoose');
 
-router.post("/register_agent",(req,res)=>{
-    const newAgent = new agent({
-        _id:req.body.contact_no,
-        email:req.body.email,
-        password:req.body.password,
-        fullname:req.body.full_name
+router.get("/profile", authenticateJWT, (req,res)=>{
+    const id = req.tokenData.id;
+
+    let promise1 = agent.findOne({_id:id}, {password:0}).exec();
+        promise1.then((doc)=>{
+            if(doc){
+                res.json({state:true,msg:"Agent profile",profile:doc});
+            }  
+            else {
+                res.json({state:false,msg:"Agent not found"});
+            }
+        });
+});
+
+router.post("/login", (req,res)=>{
+    let promise = agent.findOne({_id:req.body.username}).exec();
+    promise.then((doc)=>{
+        if(doc){
+            if(checkPassword(doc.password,req.body.password)){
+                let token = generateJWT(doc,"agent");
+                res.json({state:true,token:token,full_name:doc.fullname});
+            } else {
+                res.json({state:false, msg:"Invalid credentials. Please try again."});
+            }
+
+        } else {
+            res.json({state:false,msg:"User not found"});
+        }
     });
+});
+
+router.post("/register",(req,res)=>{
+    const newAgent = new agent({_id:req.body.contact_no, email:req.body.email,password:req.body.password,fullname:req.body.full_name});
     
     agent.register_agent(newAgent,(err,agent)=>{
         if(err){
             res.status(400).json({state:false,msg:"User already exist"});
         }
         if(agent){
-            res.status(201).json({state:true,msg:"User created",user:{"contact_no":newAgent._id,"full_name":newAgent.fullname,"email":newAgent.email}});
+            let token = generateJWT(agent,"agent");
+            res.status(201).json({state:true,msg:"User created",user:{"contact_no":newAgent._id,"full_name":newAgent.fullname,"email":newAgent.email},token:token});
         }
     });
 });
 
 
-router.post("/update_agent",(req,res)=>{
-    const contact_no = req.body.contact_no;
+router.put("/profile", authenticateJWT, (req,res)=>{
+    const id = req.tokenData.id;
     const data = {institution:req.body.institution, nic:req.body.nic, location:req.body.location};
 
-    agent.update_agent(contact_no,data, (err, agent)=> { 
+    agent.findByIdAndUpdate({_id: id},data,{useFindAndModify: false},(err, agent)=> { 
         if(err){
             res.status(400).json({state:false,msg:"user not updated"});
         }
@@ -41,17 +68,16 @@ router.post("/update_agent",(req,res)=>{
     });
 });
 
-router.post("/update_services",(req,res)=>{
-    const contact_no = req.body.contact_no;
+router.put("/service",authenticateJWT,(req,res)=>{
+    const id = req.tokenData.id;
     const data = {services:req.body.services};
 
-    agent.update_services(contact_no, data, (err, agent)=> { 
+    agent.findByIdAndUpdate({_id: id},data,{useFindAndModify: false},(err, agent)=> { 
         if(err){
             res.status(400).json({state:false,msg:"Services not added"});
         }
         if(agent){
-            let token = jwt.sign({username:contact_no},'secret',{expiresIn : '168h'});
-            res.status(200).json({state:true,msg:"Services are added",token:token,user:contact_no,type:"agent"});
+            res.status(200).json({state:true,msg:"Services are added",user:id});
         }
     });
 });
@@ -156,5 +182,9 @@ router.post("/upgrade",authenticateJWT,(req,res)=>{
     });
     
 });
+
+const checkPassword = (hash,password)=>{
+    return bcrypt.compareSync(password,hash);
+ };
 
 module.exports =  router;
