@@ -11,7 +11,8 @@ const agentSchema  = new schema({
     institution:{type:String},
     location:{type:String},
     services:{type:schema.Types.Mixed},
-    package:{type:String, default:"NORMAL"},
+    package:{type:String},
+    package_exp:{type:Date}
 });
 
 module.exports = mongoose.model("agent",agentSchema);

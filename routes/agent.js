@@ -3,11 +3,13 @@ const router = express.Router();
 const agent = require('../models/agent');
 const client = require('../models/client');
 const offer = require('../models/offer');
+const package = require('../models/package');
 const requirement = require('../models/requirement');
 const {authorizeAgent,generateJWT} = require('../authenticate');
 const {checkHash,assignLeads} = require('../utils');
 
 var mongoose = require('mongoose');
+const _package = require('../models/package');
 
 router.get("/profile", authorizeAgent, (req,res)=>{
     const id = req.tokenData.id;
@@ -173,6 +175,27 @@ router.patch("/offer/fav",authorizeAgent,(req,res)=>{
         res.json({state:true,msg:"Update favourite state"});
     });
     
+});
+
+router.get("/package", authorizeAgent, (req,res)=>{
+    const id = req.tokenData.id;
+    package_list = [];
+
+    agent.findById(id,(err,agent)=>{
+        if (agent){
+            package.findById(agent.package,(err,_package)=>{
+                if (_package){
+                    package_list.push({"_id":_package._id,"name" : _package.name, "exp":agent.package_exp, "active":true});
+                }
+                package.find({ _id: {$ne: agent.package}},(err,packages)=>{
+                    packages.map(_package=>{
+                        package_list.push({"_id" : _package._id ,"name" : _package.name,"exp":"" ,"active":false});
+                    });
+                    res.status(200).json({state:true, msg:"LEAD Packages", packages:package_list});
+                });
+            });
+        }
+    });
 });
 
 module.exports =  router;
