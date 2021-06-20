@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken');
-const SECRET = process.env.SECRET;
+const SECRET = process.env.SECRET || 'secret';
 
-const generateJWT = (doc, type) => {
+module.exports.generateJWT = (doc, type) => {
     return jwt.sign({id:doc._id, package:doc.package, type:type},SECRET,{expiresIn : '168h'});
 }
 
-const authenticateJWT = (req, res, next) => {
+module.exports.authenticateJWT = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (authHeader) {
@@ -18,7 +18,7 @@ const authenticateJWT = (req, res, next) => {
     } else {res.sendStatus(401);}
 };
 
-const authorizeAdmin = (req, res, next) => {
+module.exports.authorizeAdmin = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (authHeader) {
@@ -33,7 +33,7 @@ const authorizeAdmin = (req, res, next) => {
     } else {res.sendStatus(401);}
 };
 
-const authorizeAgent = (req, res, next) => {
+module.exports.authorizeAgent = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (authHeader) {
@@ -48,7 +48,7 @@ const authorizeAgent = (req, res, next) => {
     } else {res.sendStatus(401);}
 };
 
-const authorizeClient = (req, res, next) => {
+module.exports.authorizeClient = (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (authHeader) {
         const token = authHeader.split(' ')[1];
@@ -61,9 +61,3 @@ const authorizeClient = (req, res, next) => {
         });
     } else {res.sendStatus(401);}
 };
-
-module.exports.authenticateJWT =  authenticateJWT;
-module.exports.authorizeAdmin =  authorizeAdmin;
-module.exports.authorizeAgent =  authorizeAgent;
-module.exports.authorizeClient =  authorizeClient;
-module.exports.generateJWT =  generateJWT;

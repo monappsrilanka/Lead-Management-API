@@ -4,8 +4,9 @@ const agent = require('../models/agent');
 const client = require('../models/client');
 const offer = require('../models/offer');
 const requirement = require('../models/requirement');
-const bcrypt = require('bcryptjs');
 const {authorizeAgent,generateJWT} = require('../authenticate');
+const {checkHash,assignLeads} = require('../utils');
+
 var mongoose = require('mongoose');
 
 router.get("/profile", authorizeAgent, (req,res)=>{
@@ -26,7 +27,7 @@ router.post("/login", (req,res)=>{
     let promise = agent.findOne({_id:req.body.username}).exec();
     promise.then((doc)=>{
         if(doc){
-            if(checkPassword(doc.password,req.body.password)){
+            if(checkHash(doc.password,req.body.password)){
                 let token = generateJWT(doc,"agent");
                 res.json({state:true,token:token,full_name:doc.fullname});
             } else {
@@ -47,6 +48,7 @@ router.post("/register",(req,res)=>{
             res.status(400).json({state:false,msg:"User already exist"});
         }
         if(agent){
+            assignLeads(agent._id, 1);
             let token = generateJWT(agent,"agent");
             res.status(201).json({state:true,msg:"User created",user:{"contact_no":newAgent._id,"full_name":newAgent.fullname,"email":newAgent.email},token:token});
         }
@@ -172,9 +174,5 @@ router.patch("/offer/fav",authorizeAgent,(req,res)=>{
     });
     
 });
-
-const checkPassword = (hash,password)=>{
-    return bcrypt.compareSync(password,hash);
- };
 
 module.exports =  router;

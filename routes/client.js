@@ -3,9 +3,8 @@ const router = express.Router();
 const client = require('../models/client');
 const offer = require('../models/offer');
 const requirement = require('../models/requirement');
-const bcrypt = require('bcryptjs');
 const {authorizeClient, generateJWT} = require('../authenticate');
-
+const {checkHash} = require('../utils');
 
 router.get("/profile", authorizeClient, (req,res)=>{
     const id = req.tokenData.id;
@@ -25,7 +24,7 @@ router.post("/login", (req,res)=>{
     let promise = client.findOne({_id:req.body.username}).exec();
     promise.then((doc)=>{
         if(doc){
-            if(checkPassword(doc.password,req.body.password)){
+            if(checkHash(doc.password,req.body.password)){
                 let token = generateJWT(doc,"client");
                 res.json({state:true,token:token,full_name:doc.fullname});
             } else {
@@ -195,9 +194,5 @@ router.patch("/offer",authorizeClient,(req,res)=>{
     });
     
 });
-
-const checkPassword = (hash,password)=>{
-    return bcrypt.compareSync(password,hash);
- };
 
 module.exports =  router;

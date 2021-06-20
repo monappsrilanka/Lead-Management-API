@@ -1,5 +1,5 @@
 const database_url = process.env.DATABASE;
 
 module.exports = {
-    "database":database_url
+    "database": database_url
 };

@@ -1,0 +1,30 @@
+const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
+
+const requirement = require('./models/requirement');
+const offer = require('./models/offer');
+
+module.exports.assignLeads = (id,count)=>{
+    requirement.find({count: {$lte: 4}}, (err, requirements)=>{
+        requirements.map(_req=>{
+            const newoffer = new offer({requirementid:_req._id, agent:id, date:new Date()});
+            offer.saveOffer(newoffer,(err,_offer)=>{
+                if(err){
+                    console.log("ERROR Occured durinng creating Offers");
+                } else {
+                    requirement.findOneAndUpdate({_id :_req._id}, {$inc : {count : 1}},()=>{
+                        console.log("Incremented the counter");
+                    });
+                }
+            });
+        });
+    }).limit(count); 
+}
+
+module.exports.checkHash = (hash,password)=>{ 
+    return bcrypt.compareSync(password,hash);
+};
+
+module.exports.md5 = (string)=>{ 
+    return crypto.createHash('md5').update(string).digest("hex");
+};

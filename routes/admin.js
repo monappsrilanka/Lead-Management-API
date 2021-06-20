@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const admin = require('../models/admin');
-const bcrypt = require('bcryptjs');
 const {authorizeAdmin,generateJWT} = require('../authenticate');
+const {checkHash} = require('../utils');
 
 router.get("/profile", authorizeAdmin, (req,res)=>{
     const id = req.tokenData.id;
@@ -22,7 +22,7 @@ router.post("/login", (req,res)=>{
     let promise = admin.findOne({_id:req.body.username}).exec();
     promise.then((doc)=>{
         if(doc){
-            if(checkPassword(doc.password,req.body.password)){
+            if(checkHash(doc.password,req.body.password)){
                 let token = generateJWT(doc,"admin");
                 res.json({state:true,token:token,full_name:doc.fullname});
             } else {
@@ -35,8 +35,4 @@ router.post("/login", (req,res)=>{
     });
 });
 
-const checkPassword = (hash,password)=>{
-    return bcrypt.compareSync(password,hash);
- };
-
- module.exports =  router;
+module.exports =  router;
