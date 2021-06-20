@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 
 const requirement = require('./models/requirement');
 const offer = require('./models/offer');
-const agent = require('../models/agent');
+const agent = require('./models/agent');
 
 module.exports.assignLeads = (id,count)=>{
     agent.findOne({_id:id},(err,agent)=>{
