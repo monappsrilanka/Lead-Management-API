@@ -18,7 +18,7 @@ module.exports.assignLeads = (id,count)=>{
                 }
             });
         });
-    }).limit(count); 
+    }).sort({date: -1}).limit(count); 
 }
 
 module.exports.checkHash = (hash,password)=>{ 
