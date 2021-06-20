@@ -50,7 +50,6 @@ router.post("/register",(req,res)=>{
             res.status(400).json({state:false,msg:"User already exist"});
         }
         if(agent){
-            assignLeads(agent._id, 1);
             let token = generateJWT(agent,"agent");
             res.status(201).json({state:true,msg:"User created",user:{"contact_no":newAgent._id,"full_name":newAgent.fullname,"email":newAgent.email},token:token});
         }
@@ -81,6 +80,7 @@ router.put("/service",authorizeAgent,(req,res)=>{
             res.status(400).json({state:false,msg:"Services not added"});
         }
         if(agent){
+            if (agent.services.length==0){assignLeads(agent._id, 1);}
             res.status(200).json({state:true,msg:"Services are added",user:id});
         }
     });
