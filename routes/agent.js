@@ -161,7 +161,7 @@ router.patch("/offer",authorizeAgent,(req,res)=>{
     const offerid = req.body.offerid;
 
     offer.findOneAndUpdate({_id:offerid} , {status:"CONVERTED"}, ()=>{
-        res.json({state:true,msg:"State of the Offer is changed to ".concat(status)});
+        res.json({state:true,msg:"State of the Offer is changed to ".concat("CONVERTED")});
     });
     
 });
