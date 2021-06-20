@@ -80,7 +80,6 @@ router.put("/service",authorizeAgent,(req,res)=>{
             res.status(400).json({state:false,msg:"Services not added"});
         }
         if(agent){
-            console.log(agent.services);
             if (agent.services==null){assignLeads(agent._id, 1);}
             res.status(200).json({state:true,msg:"Services are added",user:id});
         }
