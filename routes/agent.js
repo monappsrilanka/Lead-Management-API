@@ -75,12 +75,13 @@ router.put("/service",authorizeAgent,(req,res)=>{
     const id = req.tokenData.id;
     const data = {services:req.body.services};
 
-    agent.findByIdAndUpdate({_id: id},data,{new: true},(err, agent)=> { 
+    agent.findByIdAndUpdate({_id: id},data,{useFindAndModify: false},(err, agent)=> { 
         if(err){
             res.status(400).json({state:false,msg:"Services not added"});
         }
         if(agent){
-            if (agent.services.length==0){assignLeads(agent._id, 1);}
+            console.log(agent.services);
+            if (agent.services==null){assignLeads(agent._id, 1);}
             res.status(200).json({state:true,msg:"Services are added",user:id});
         }
     });
