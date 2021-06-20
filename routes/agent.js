@@ -91,7 +91,7 @@ router.get("/offer",authorizeAgent,(req,res)=>{
 
     // id is put to the request body by the authentication middleware after authentication.
     const id = req.tokenData.id;
-    const valid_status = ["OPEN","REQUESTED", "ACCEPTED", "DECLINED"];
+    const valid_status = ["OPEN","CONVERTED"];
     const fav = req.query.fav;
     var fav_status = [true, false];
     if (fav=="true"){
