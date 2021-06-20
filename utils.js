@@ -9,7 +9,11 @@ module.exports.assignLeads = (id,count)=>{
 
     agent.findOne({_id:id},(err,agent)=>{
         if (agent){
+            console.log("********");
+            console.log(agent);
             requirement.find({service:{$in:agent.services}, count: {$lte: 4}}, (err, requirements)=>{
+                console.log("+++++++++++++");
+                console.log(requirements);
                 requirements.map(_req=>{
                     const newoffer = new offer({requirementid:_req._id, agent:id, date:new Date()});
                     offer.saveOffer(newoffer,(err,_offer)=>{
@@ -22,7 +26,7 @@ module.exports.assignLeads = (id,count)=>{
                         }
                     });
                 });
-            }).sort({date: 1}).limit(count); 
+            }).sort({date: -1}).limit(count); 
         }
     });
     
