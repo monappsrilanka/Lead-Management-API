@@ -173,16 +173,6 @@ router.patch("/offer/fav",authorizeAgent,(req,res)=>{
     
 });
 
-router.post("/upgrade",authorizeAgent,(req,res)=>{
-    const id = req.tokenData.id;
-    const package = req.body.package;
-
-    agent.findOneAndUpdate({_id:id} , {package:package}, ()=>{
-        res.json({state:true,msg:"Update package"});
-    });
-    
-});
-
 const checkPassword = (hash,password)=>{
     return bcrypt.compareSync(password,hash);
  };
