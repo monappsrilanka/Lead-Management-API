@@ -8,3 +8,7 @@ const serviceSchema  = new schema({
 });
 
 module.exports = mongoose.model("service",serviceSchema);
+
+module.exports.saveService = (service,callback)=>{
+    service.save(callback);
+};

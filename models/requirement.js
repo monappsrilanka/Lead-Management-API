@@ -8,6 +8,7 @@ const requirementSchema  = new schema({
     amount:{type:String},
     notes:{type:String},
     type:{type:schema.Types.Mixed},
+    count:{type:Number,default:1},
     status:{type:String}
 });
 

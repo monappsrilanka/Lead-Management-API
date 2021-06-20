@@ -5,10 +5,10 @@ const client = require('../models/client');
 const offer = require('../models/offer');
 const requirement = require('../models/requirement');
 const bcrypt = require('bcryptjs');
-const {authenticateJWT,generateJWT} = require('../authenticate');
+const {authorizeAgent,generateJWT} = require('../authenticate');
 var mongoose = require('mongoose');
 
-router.get("/profile", authenticateJWT, (req,res)=>{
+router.get("/profile", authorizeAgent, (req,res)=>{
     const id = req.tokenData.id;
 
     let promise1 = agent.findOne({_id:id}, {password:0}).exec();
@@ -54,7 +54,7 @@ router.post("/register",(req,res)=>{
 });
 
 
-router.put("/profile", authenticateJWT, (req,res)=>{
+router.put("/profile", authorizeAgent, (req,res)=>{
     const id = req.tokenData.id;
     const data = {institution:req.body.institution, nic:req.body.nic, location:req.body.location};
 
@@ -68,7 +68,7 @@ router.put("/profile", authenticateJWT, (req,res)=>{
     });
 });
 
-router.put("/service",authenticateJWT,(req,res)=>{
+router.put("/service",authorizeAgent,(req,res)=>{
     const id = req.tokenData.id;
     const data = {services:req.body.services};
 
@@ -83,7 +83,7 @@ router.put("/service",authenticateJWT,(req,res)=>{
 });
 
 // Agent need to get the offers he has recieved with details.
-router.get("/offer",authenticateJWT,(req,res)=>{
+router.get("/offer",authorizeAgent,(req,res)=>{
 
     // id is put to the request body by the authentication middleware after authentication.
     const id = req.tokenData.id;
@@ -153,7 +153,7 @@ router.get("/offer",authenticateJWT,(req,res)=>{
     });
 });
 
-router.patch("/offer",authenticateJWT,(req,res)=>{
+router.patch("/offer",authorizeAgent,(req,res)=>{
     const offerid = req.body.offerid;
     const status = req.body.status;
 
@@ -163,7 +163,7 @@ router.patch("/offer",authenticateJWT,(req,res)=>{
     
 });
 
-router.patch("/offer/fav",authenticateJWT,(req,res)=>{
+router.patch("/offer/fav",authorizeAgent,(req,res)=>{
     const offerid = req.body.offerid;
     const fav = req.body.fav;
 
@@ -173,7 +173,7 @@ router.patch("/offer/fav",authenticateJWT,(req,res)=>{
     
 });
 
-router.post("/upgrade",authenticateJWT,(req,res)=>{
+router.post("/upgrade",authorizeAgent,(req,res)=>{
     const id = req.tokenData.id;
     const package = req.body.package;
 

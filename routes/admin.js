@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const admin = require('../models/admin');
 const bcrypt = require('bcryptjs');
-const {authenticateJWT,generateJWT} = require('../authenticate');
+const {authorizeAdmin,generateJWT} = require('../authenticate');
 
-router.get("/profile", authenticateJWT, (req,res)=>{
+router.get("/profile", authorizeAdmin, (req,res)=>{
     const id = req.tokenData.id;
 
     let promise = admin.findOne({_id:id}, {password:0}).exec();

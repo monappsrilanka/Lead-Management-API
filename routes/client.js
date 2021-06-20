@@ -1,22 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const client = require('../models/client');
-const agent = require('../models/agent');
-const institute = require('../models/institute');
 const offer = require('../models/offer');
 const requirement = require('../models/requirement');
 const bcrypt = require('bcryptjs');
-const {authenticateJWT, generateJWT} = require('../authenticate');
+const {authorizeClient, generateJWT} = require('../authenticate');
 
-const MAX_INST_REQ = 3;
 
-router.get("/profile", authenticateJWT, (req,res)=>{
+router.get("/profile", authorizeClient, (req,res)=>{
     const id = req.tokenData.id;
 
     let promise1 = client.findOne({_id:id}, {password:0}).exec();
         promise1.then((doc)=>{
-            if(doc){r
-                es.json({state:true,msg:"Client profile",profile:doc});
+            if(doc){
+                res.json({state:true,msg:"Client profile",profile:doc});
             }  
             else {
                 res.json({state:false,msg:"Cient not found"});
@@ -62,7 +59,7 @@ router.post("/register",(req,res)=>{
     });
 });
 
-router.post("/requirement", authenticateJWT, (req,res)=>{
+router.post("/requirement", authorizeClient, (req,res)=>{
     const newRequirement = new requirement({
         client:req.tokenData.id,
         service:req.body.service,
@@ -75,64 +72,17 @@ router.post("/requirement", authenticateJWT, (req,res)=>{
 
     requirement.saveRequirement(newRequirement,(err,requirement)=>{
         if(err){
-            res.status(400).json({state:false,msg:"requirement not inserted"});
+            res.status(400).json({state:false,msg:"Requirement Not Created"});
         }
         if(requirement){
-            findInstitutes(requirement,res);
-            res.status(200).json({state:true,msg:"Your request sent successfully"});
+            res.status(201).json({state:true,msg:"Your Requirement Created"});
         }
     });
     
 });
 
-const findInstitutes = (requirement)=>{
-    institute.find({ type: { $in: requirement.type } }, (err,institutes)=>{
-        var no_institutes = institutes.length;
-        var selected_institutes = institutes;
-
-        if (no_institutes > MAX_INST_REQ){
-            selected_institutes = [];
-            var random_array = [];
-            while(random_array.length !== MAX_INST_REQ){
-                var r = Math.floor(Math.random() * no_institutes);
-                if(random_array.indexOf(r) === -1) random_array.push(r);
-            }
-
-            random_array.map((index)=>{
-                selected_institutes.push(institutes[index]);  
-            });
-        } 
-        
-        findAgents(selected_institutes,requirement);
-    });
-};
-
-const findAgents = (institutes,requirement)=>{
-    institutes.map((ins)=>{
-        agent.find({institution:ins._id}, (err,agents)=>{
-            if (agents.length>0){
-                const random = Math.floor(Math.random() * (agents.length));
-                const newoffer = new offer({
-                    requirementid:requirement._id,
-                    agent:agents[random]._id,
-                    date:new Date()
-                });
-                
-                offer.saveOffer(newoffer,(err,_offer)=>{
-                    if(err){
-                        res.status(500).json({state:false,msg:"Unsucessful"});
-                    }
-                    if(_offer){
-                       //---//
-                    }
-                });
-            }
-        });
-    });
-}
-
 // client wants to view the requirements he has made.
-router.get("/requirement",authenticateJWT,(req,res)=>{
+router.get("/requirement",authorizeClient,(req,res)=>{
     // client id is set by the middleware.
     const id = req.tokenData.id;
 
@@ -186,7 +136,7 @@ router.get("/requirement",authenticateJWT,(req,res)=>{
 });
 
 // update the requirement attributed
-router.put("/requirement",authenticateJWT,(req,res)=>{
+router.put("/requirement",authorizeClient,(req,res)=>{
     const amount = req.body.amount;
     const notes = req.body.notes;
 
@@ -201,7 +151,7 @@ router.put("/requirement",authenticateJWT,(req,res)=>{
 });
 
 // delete the requirement
-router.delete("/requirement/:id",authenticateJWT,(req,res)=>{
+router.delete("/requirement/:id",authorizeClient,(req,res)=>{
 
     // find and delete the requirement
     requirement.findByIdAndDelete(req.params['id'], (err, _requirement) => { 
@@ -218,7 +168,7 @@ router.delete("/requirement/:id",authenticateJWT,(req,res)=>{
 });
 
 // client need to update the status of a requirement
-router.patch("/requirement",authenticateJWT,(req,res)=>{
+router.patch("/requirement",authorizeClient,(req,res)=>{
     const requirementid = req.body.requirementid;
     const status = req.body.status;
 
@@ -236,7 +186,7 @@ router.patch("/requirement",authenticateJWT,(req,res)=>{
 });
 
 // client need to update the status of an offer related to his requirement
-router.patch("/offer",authenticateJWT,(req,res)=>{
+router.patch("/offer",authorizeClient,(req,res)=>{
     const offerid = req.body.offerid;
     const status = req.body.status;
 
