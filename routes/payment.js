@@ -15,13 +15,10 @@ router.post("/", (req,res)=>{
     var md5sig = req.body.md5sig;
     var agent_id = req.body.custom_1;
     var package_id = req.body.custom_2;
-
-    console.log("package_id =" + package_id + "*****");
    
     var local_md5sig = md5(merchant_id + order_id + payhere_amount + payhere_currency + status_code + md5(merchant_secret).toUpperCase());
     
     if (local_md5sig.toUpperCase() == md5sig && status_code == 2){
-        console.log("Suceess");
         package.findById(package_id,(err,package)=>{
             if (err){
                 console.log("ERROR occured during seearching package");

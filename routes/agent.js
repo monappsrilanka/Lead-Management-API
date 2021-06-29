@@ -102,7 +102,6 @@ router.get("/offer",authorizeAgent,(req,res)=>{
         offer_details_list = [];
         requirement_id_list = [];
 
-        console.log(offers);
         // store the corresponding requirement ids for each offer
         offers.map(_offer=>{
             requirement_id_list.push(mongoose.Types.ObjectId(_offer.requirementid));
