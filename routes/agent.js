@@ -183,11 +183,11 @@ router.get("/package", authorizeAgent, (req,res)=>{
         if (agent){
             package.findById(agent.package,(err,_package)=>{
                 if (_package){
-                    package_list.push({"_id":_package._id,"name" : _package.name, "exp":agent.package_exp, "active":true});
+                    package_list.push({"_id":_package._id,"name" : _package.name,"amount":_package.amount,"leads":_package.leads, "exp":agent.package_exp, "active":true});
                 }
                 package.find({ _id: {$ne: agent.package}},(err,packages)=>{
                     packages.map(_package=>{
-                        package_list.push({"_id" : _package._id ,"name" : _package.name,"exp":"" ,"active":false});
+                        package_list.push({"_id" : _package._id ,"name" : _package.name,"amount":_package.amount,"leads":_package.leads,"exp":"" ,"active":false});
                     });
                     res.status(200).json({state:true, msg:"LEAD Packages", packages:package_list});
                 });
