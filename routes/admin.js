@@ -9,7 +9,7 @@ const {checkHash} = require('../utils');
 router.post("/register",(req,res)=>{
     const newAdmin = new admin({_id:req.body.username, password:req.body.password});
     
-    admin.saveClient(newAdmin,(err,admin)=>{
+    admin.saveAdmin(newAdmin,(err,admin)=>{
         if(err){
             res.status(400).json({state:false,msg:"Admin already exist"});
         }
