@@ -58,7 +58,7 @@ router.post("/register",(req,res)=>{
     });
 });
 
-router.post("/requirement", authorizeClient, (req,res)=>{
+router.post("/requirement", (req,res)=>{
     const newRequirement = new requirement({
         client:req.tokenData.id,
         service:req.body.service,
