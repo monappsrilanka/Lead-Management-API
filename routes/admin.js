@@ -6,6 +6,20 @@ const requirement = require('../models/requirement');
 const {authorizeAdmin,generateJWT} = require('../authenticate');
 const {checkHash} = require('../utils');
 
+router.post("/register",(req,res)=>{
+    const newAdmin = new admin({_id:req.body.username, password:req.body.password});
+    
+    admin.saveClient(newAdmin,(err,admin)=>{
+        if(err){
+            res.status(400).json({state:false,msg:"Admin already exist"});
+        }
+        if(admin){
+            let token = generateJWT(admin,"admin");
+            res.status(201).json({state:true,msg:"Admin created",token:token});
+        }
+    });
+});
+
 router.get("/profile", authorizeAdmin, (req,res)=>{
     const id = req.tokenData.id;
 
@@ -26,7 +40,7 @@ router.post("/login", (req,res)=>{
         if(doc){
             if(checkHash(doc.password,req.body.password)){
                 let token = generateJWT(doc,"admin");
-                res.json({state:true,token:token,full_name:doc.fullname});
+                res.json({state:true,token:token});
             } else {
                 res.json({state:false, msg:"Invalid credentials. Please try again."});
             }

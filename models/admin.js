@@ -7,3 +7,14 @@ const adminSchema  = new schema({
 });
 
 module.exports = mongoose.model("admin",adminSchema);
+
+module.exports.saveAdmin = (admin,callback)=>{
+    bcrypt.genSalt(10,(err,salt)=>{
+        bcrypt.hash(admin.password,salt,(err,hash)=>{
+            admin.password = hash;
+
+            if (err) throw err;
+            admin.save(callback);
+        })
+    })
+};
