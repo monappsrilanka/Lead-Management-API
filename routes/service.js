@@ -4,8 +4,7 @@ const service = require('../models/service');
 const {authenticateJWT, authorizeAdmin} = require('../authenticate');
 
 router.get("/", authenticateJWT, (req,res)=>{
-    let promise = service.find({},{_id: 0, service:1, type:1}).exec();
-    promise.then((services)=>{
+    service.find((err,services)=>{
         res.status(200).json({state:true, msg:"Offered Services" , services:services});
     });
 });
