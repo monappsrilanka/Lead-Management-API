@@ -3,8 +3,9 @@ const bcrypt = require('bcryptjs');
 const schema  = mongoose.Schema;
 
 const adminSchema  = new schema({
-    _id:{type:String,required:true},  //admin name
-    password:{type:String,required:true}
+    _id:{type:String,required:true},
+    password:{type:String,required:true},
+    name:{type:String}
 });
 
 module.exports = mongoose.model("admin",adminSchema);

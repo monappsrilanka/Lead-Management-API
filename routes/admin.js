@@ -7,7 +7,7 @@ const {authorizeAdmin,generateJWT} = require('../authenticate');
 const {checkHash} = require('../utils');
 
 router.post("/register",(req,res)=>{
-    const newAdmin = new admin({_id:req.body.username, password:req.body.password});
+    const newAdmin = new admin({_id:req.body.email, password:req.body.password, name:req.body.name});
     
     admin.saveAdmin(newAdmin,(err,admin)=>{
         if(err){
@@ -15,7 +15,7 @@ router.post("/register",(req,res)=>{
         }
         if(admin){
             let token = generateJWT(admin,"admin");
-            res.status(201).json({state:true,msg:"Admin created",token:token});
+            res.status(201).json({state:true,msg:"Admin created",token:token, name:admin.name});
         }
     });
 });
@@ -35,12 +35,12 @@ router.get("/profile", authorizeAdmin, (req,res)=>{
 });
 
 router.post("/login", (req,res)=>{
-    let promise = admin.findOne({_id:req.body.username}).exec();
+    let promise = admin.findOne({_id:req.body.email}).exec();
     promise.then((doc)=>{
         if(doc){
             if(checkHash(doc.password,req.body.password)){
                 let token = generateJWT(doc,"admin");
-                res.json({state:true,token:token});
+                res.json({state:true,token:token,name:doc.name});
             } else {
                 res.json({state:false, msg:"Invalid credentials. Please try again."});
             }
@@ -52,7 +52,13 @@ router.post("/login", (req,res)=>{
 });
 
 router.get("/lead", authorizeAdmin, (req,res)=>{
-    requirement.find((err,requirements)=>{
+    const status = req.query.status;
+    var search = {};
+    if (status!=null){
+        search = {status:status};
+    }
+   
+    requirement.find(search,(err,requirements)=>{
         if (requirements){
             res.status(200).json({state:true, msg:"LEADs", leads:requirements});
         } else {

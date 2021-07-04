@@ -1,19 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const institute = require('../models/institute');
-const {authenticateJWT} = require('../authenticate');
+const {authenticateJWT, authorizeAdmin} = require('../authenticate');
 
 router.get("/", authenticateJWT, (req,res)=>{
-    let promise = institute.find({},{ _id: 1, services:1}).exec();
-    promise.then((institutes)=>{
+    institute.find({},(err,institutes)=>{
         res.status(200).json({state:true, msg:"Service Providers", institutes:institutes});
     });
 });
 
-router.post("/", authenticateJWT, (req,res)=>{
-    const newInstitute = new institute({_id:req.body.name, services:req.body.services, type:req.body.type});
+router.post("/", authorizeAdmin, (req,res)=>{
+    const newInstitute = new institute({name:req.body.name, services:req.body.services, type:req.body.type});
     institute.saveInstitute(newInstitute,(err,institute)=>{
         if(err){
+            console.log(err);
             res.status(400).json({state:false,msg:"Institue Already Exists"});
         }
         if(institute){
@@ -22,9 +22,8 @@ router.post("/", authenticateJWT, (req,res)=>{
     });
 });
 
-router.patch("/", authenticateJWT, (req,res)=>{
-    const data = {services:req.body.services, type:req.body.type};
-    institute.findByIdAndUpdate({_id: req.body._id}, data, {new: true}, (err,institute)=>{
+router.patch("/", authorizeAdmin, (req,res)=>{
+    institute.findByIdAndUpdate({_id: req.body._id}, req.body, {new: true}, (err,institute)=>{
         if(err){
             res.status(400).json({state:false,msg:"Bad Request"});
         }
@@ -34,7 +33,7 @@ router.patch("/", authenticateJWT, (req,res)=>{
     });
 });
 
-router.delete("/", authenticateJWT, (req,res)=>{
+router.delete("/", authorizeAdmin, (req,res)=>{
     institute.findByIdAndDelete({_id: req.body._id}, (err)=>{
         if(err){
             res.status(400).json({state:false,msg:"Bad Request"});
