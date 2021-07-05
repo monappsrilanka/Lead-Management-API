@@ -4,7 +4,7 @@ const admin = require('../models/admin');
 const requirement = require('../models/requirement');
 
 const {authorizeAdmin,generateJWT} = require('../authenticate');
-const {checkHash,hashText} = require('../utils');
+const {checkHash} = require('../utils');
 
 router.post("/register",(req,res)=>{
     const newAdmin = new admin({_id:req.body.email, password:req.body.password, name:req.body.name});
@@ -88,12 +88,8 @@ router.get("/", authorizeAdmin, (req,res)=>{
 
 router.patch("/", authorizeAdmin, (req,res)=>{
     const email = req.body.email;
-    const password = req.body.password;
     const name = req.body.name;
-    var data = {};
-    if (password!=null){data.password = hashText(password);}
-    if (name!=null){data.name = name;}
-    admin.findOneAndUpdate({_id:email},data,(err,admin)=>{
+    admin.findOneAndUpdate({_id:email},{name:name},(err,admin)=>{
         if(admin){res.json({state:true,msg:"Admin Updated"});}  
         else {res.json({state:false,msg:"Admins not Updated"});}
     });
