@@ -1,6 +1,6 @@
 const mongoose =  require('mongoose');
-const bcrypt = require('bcryptjs');
 const schema  = mongoose.Schema;
+const {hashText} = require('../utils');
 
 const adminSchema  = new schema({
     _id:{type:String,required:true},
@@ -11,12 +11,6 @@ const adminSchema  = new schema({
 module.exports = mongoose.model("admin",adminSchema);
 
 module.exports.saveAdmin = (admin,callback)=>{
-    bcrypt.genSalt(10,(err,salt)=>{
-        bcrypt.hash(admin.password,salt,(err,hash)=>{
-            admin.password = hash;
-
-            if (err) throw err;
-            admin.save(callback);
-        })
-    })
+    admin.password = hashText(admin.password);
+    admin.save(callback);
 };

@@ -1,5 +1,5 @@
 const mongoose =  require('mongoose');
-const bcrypt = require('bcryptjs');
+const {hashText} = require('../utils');
 const schema  = mongoose.Schema;
 
 const agentSchema  = new schema({
@@ -17,14 +17,7 @@ const agentSchema  = new schema({
 
 module.exports = mongoose.model("agent",agentSchema);
 
-// first agent registration
 module.exports.register_agent = (agent,callback)=>{
-    bcrypt.genSalt(10,(err,salt)=>{
-        bcrypt.hash(agent.password,salt,(err,hash)=>{
-            agent.password = hash;
-
-            if (err) throw err;
-            agent.save(callback);
-        })
-    })    
+    agent.password = hashText(agent.password);
+    agent.save(callback);
 };

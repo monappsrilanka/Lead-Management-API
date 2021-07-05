@@ -1,5 +1,5 @@
 const mongoose =  require('mongoose');
-const bcrypt = require('bcryptjs');
+const {hashText} = require('../utils');
 const schema  = mongoose.Schema;
 
 const clientSchema  = new schema({
@@ -14,12 +14,6 @@ const clientSchema  = new schema({
 module.exports = mongoose.model("client",clientSchema);
 
 module.exports.saveClient = (client,callback)=>{
-    bcrypt.genSalt(10,(err,salt)=>{
-        bcrypt.hash(client.password,salt,(err,hash)=>{
-            client.password = hash;
-
-            if (err) throw err;
-            client.save(callback);
-        })
-    })
+    client.password = hashText(client.password);
+    client.save(callback);
 };

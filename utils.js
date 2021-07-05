@@ -44,3 +44,10 @@ module.exports.checkHash = (hash,password)=>{
 module.exports.md5 = (string)=>{ 
     return crypto.createHash('md5').update(string).digest("hex");
 };
+
+module.exports.hashText = (string)=>{
+    bcrypt.genSalt(10,(err,salt)=>{
+        bcrypt.hash(string,salt,(err,hash)=>{return hash});
+    });
+};
+
