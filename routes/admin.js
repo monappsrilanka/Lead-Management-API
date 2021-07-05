@@ -79,4 +79,11 @@ router.patch("/lead",authorizeAdmin,(req,res)=>{
     
 });
 
+router.get("/", authorizeAdmin, (req,res)=>{
+    ladmin.findOne({},{password:0},(err,admins)=>{
+        if(admins){res.json({state:true,msg:"Admins",admins:admins});}  
+        else {res.json({state:false,msg:"Admins not found"});}
+    });
+});
+
 module.exports =  router;
