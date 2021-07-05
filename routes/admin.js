@@ -80,9 +80,17 @@ router.patch("/lead",authorizeAdmin,(req,res)=>{
 });
 
 router.get("/", authorizeAdmin, (req,res)=>{
-    ladmin.findOne({},{password:0},(err,admins)=>{
+    admin.findOne({},{password:0},(err,admins)=>{
         if(admins){res.json({state:true,msg:"Admins",admins:admins});}  
         else {res.json({state:false,msg:"Admins not found"});}
+    });
+});
+
+router.patch("/", authorizeAdmin, (req,res)=>{
+    const email = req.body.email;
+    admin.findOneAndUpdate({_id:email},req.body,(err,admin)=>{
+        if(admin){res.json({state:true,msg:"Admin Updated"});}  
+        else {res.json({state:false,msg:"Admins not Updated"});}
     });
 });
 
