@@ -129,6 +129,7 @@ router.get("/offer",authAgent,(req,res)=>{
             requirements.map(req=>{
                 requirement_details[req._id] = {
                     "client":req.client,
+                    "contact":req.contact,
                     "amount":req.amount,
                     "service":req.service,
                     "notes":req.notes
@@ -140,6 +141,7 @@ router.get("/offer",authAgent,(req,res)=>{
                     "status":offer.status,
                     "favourite":offer.fav,
                     "clientname" : requirement_details[offer.requirementid].client,
+                    "contact" : requirement_details[offer.requirementid].contact,
                     "amount":requirement_details[offer.requirementid].amount,
                     "notes":requirement_details[offer.requirementid].notes
                 });

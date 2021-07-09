@@ -5,6 +5,7 @@ const requirement = require('../models/requirement');
 router.post("/requirement", (req,res)=>{
     const newRequirement = new requirement({
         client:req.body.name,
+        contact:req.body.contact,
         service:req.body.service,
         amount:req.body.amount,
         notes:req.body.notes,

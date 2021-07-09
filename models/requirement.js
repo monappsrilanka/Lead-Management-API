@@ -3,6 +3,7 @@ const schema  = mongoose.Schema;
 
 const requirementSchema  = new schema({
     client:{type:String,required:true},
+    contact:{type:String,required:true},
     service:{type:String,required:true},
     date:{type:Date},
     amount:{type:String},

@@ -3,7 +3,7 @@ const router = express.Router();
 const requirement = require('../models/requirement');
 const {authAdmin} = require('../authenticate');
 
-router.get("/lead", authAdmin, (req,res)=>{
+router.get("/lead", (req,res)=>{
     const status = req.query.status;
     var search = {};
     if (status!=null){search = {status:status};}
