@@ -162,7 +162,9 @@ router.get("/offer",authAgent,(req,res)=>{
 router.patch("/offer",authAgent,(req,res)=>{
     const offerid = req.body.offerid;
     const status = req.body.status;
-
+    if (status=="REQUESTED"){
+        status="CONVERTED";
+    }
     offer.findOneAndUpdate({_id:offerid} , {status:status}, ()=>{
         res.json({state:true,msg:"State of the Offer is changed to ".concat(status)});
     });
