@@ -131,6 +131,7 @@ router.get("/offer",authAgent,(req,res)=>{
                     "client":req.client,
                     "contact":req.contact,
                     "service":req.service,
+                    "date":req.date,
                     "amount":req.amount,
                     "service":req.service,
                     "notes":req.notes
@@ -143,6 +144,7 @@ router.get("/offer",authAgent,(req,res)=>{
                     "favourite":offer.fav,
                     "clientname" : requirement_details[offer.requirementid].client,
                     "contact" : requirement_details[offer.requirementid].contact,
+                    "date" : requirement_details[offer.requirementid].date,
                     "service" : requirement_details[offer.requirementid].service,
                     "amount":requirement_details[offer.requirementid].amount,
                     "notes":requirement_details[offer.requirementid].notes
