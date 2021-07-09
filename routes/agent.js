@@ -161,7 +161,7 @@ router.get("/offer",authAgent,(req,res)=>{
 
 router.patch("/offer",authAgent,(req,res)=>{
     const offerid = req.body.offerid;
-    const status = req.body.status;
+    var status = req.body.status;
     if (status=="REQUESTED"){
         status="CONVERTED";
     }
