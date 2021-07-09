@@ -2,7 +2,7 @@ const mongoose =  require('mongoose');
 const schema  = mongoose.Schema;
 
 const instituteSchema  = new schema({
-    name:{type:String,required:true},
+    _id:{type:String,required:true},
     services:{type:schema.Types.Mixed,required:true},
     type:{type:String}
 });

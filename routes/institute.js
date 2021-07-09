@@ -1,19 +1,29 @@
 const express = require('express');
 const router = express.Router();
 const institute = require('../models/institute');
-const {authenticateJWT, authorizeAdmin} = require('../authenticate');
+const {authAdmin} = require('../authenticate');
 
-router.get("/", authenticateJWT, (req,res)=>{
+router.get("/", (req,res)=>{
     institute.find({},(err,institutes)=>{
         res.status(200).json({state:true, msg:"Service Providers", institutes:institutes});
     });
 });
 
-router.post("/", authorizeAdmin, (req,res)=>{
-    const newInstitute = new institute({name:req.body.name, services:req.body.services, type:req.body.type});
+router.get("/service", (req,res)=>{
+    const id = req.query.bank;
+    institute.find({_id:id},(err,inst)=>{
+        if(inst){
+            res.status(200).json({state:true, msg:"Services", services:inst.services});
+        } else {
+            res.status(400).json({state:false, msg:"Institute Not Found"});
+        }
+    });
+});
+
+router.post("/", authAdmin, (req,res)=>{
+    const newInstitute = new institute({_id:req.body.name, services:req.body.services, type:req.body.type});
     institute.saveInstitute(newInstitute,(err,institute)=>{
         if(err){
-            console.log(err);
             res.status(400).json({state:false,msg:"Institue Already Exists"});
         }
         if(institute){
@@ -22,18 +32,7 @@ router.post("/", authorizeAdmin, (req,res)=>{
     });
 });
 
-router.patch("/", authorizeAdmin, (req,res)=>{
-    institute.findByIdAndUpdate({_id: req.body._id}, req.body, {new: true}, (err,institute)=>{
-        if(err){
-            res.status(400).json({state:false,msg:"Bad Request"});
-        }
-        if(institute){
-            res.status(201).json({state:true,msg:"Institute Updated",institute:institute});
-        }
-    });
-});
-
-router.delete("/", authorizeAdmin, (req,res)=>{
+router.delete("/", authAdmin, (req,res)=>{
     institute.findByIdAndDelete({_id: req.body._id}, (err)=>{
         if(err){
             res.status(400).json({state:false,msg:"Bad Request"});

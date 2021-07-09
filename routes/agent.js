@@ -1,17 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const agent = require('../models/agent');
-const client = require('../models/client');
 const offer = require('../models/offer');
+const institute = require('../models/institute');
 const package = require('../models/package');
 const requirement = require('../models/requirement');
-const {authorizeAgent,generateJWT} = require('../authenticate');
+const {authAgent,generateJWT} = require('../authenticate');
 const {checkHash,assignLeads} = require('../utils');
 
 var mongoose = require('mongoose');
-const _package = require('../models/package');
 
-router.get("/profile", authorizeAgent, (req,res)=>{
+router.get("/profile", authAgent, (req,res)=>{
     const id = req.tokenData.id;
 
     let promise1 = agent.findOne({_id:id}, {password:0}).exec();
@@ -30,7 +29,7 @@ router.post("/login", (req,res)=>{
     promise.then((doc)=>{
         if(doc){
             if(checkHash(doc.password,req.body.password)){
-                let token = generateJWT(doc,"agent");
+                let token = generateJWT(doc);
                 res.json({state:true,token:token,full_name:doc.fullname});
             } else {
                 res.json({state:false, msg:"Invalid credentials. Please try again."});
@@ -43,7 +42,7 @@ router.post("/login", (req,res)=>{
 });
 
 router.post("/register",(req,res)=>{
-    const newAgent = new agent({_id:req.body.contact_no, email:req.body.email,password:req.body.password,fullname:req.body.full_name});
+    const newAgent = new agent({_id:req.body.contact_no, email:req.body.email, password:req.body.password, fullname:req.body.full_name});
     
     agent.register_agent(newAgent,(err,agent)=>{
         if(err){
@@ -57,7 +56,7 @@ router.post("/register",(req,res)=>{
 });
 
 
-router.put("/profile", authorizeAgent, (req,res)=>{
+router.put("/profile", authAgent, (req,res)=>{
     const id = req.tokenData.id;
     const data = {institution:req.body.institution, nic:req.body.nic, location:req.body.location};
 
@@ -71,7 +70,24 @@ router.put("/profile", authorizeAgent, (req,res)=>{
     });
 });
 
-router.put("/service",authorizeAgent,(req,res)=>{
+router.get("/service", authAgent, (req,res)=>{
+    const id = req.tokenData.id;
+    agent.findById({_id:id},(err,agent)=>{
+        if(agent){
+            institute.findById({_id:agent.institution},(err,institute)=>{
+                if(institute){
+                    res.status(200).json({state:true,msg:"Offered Services",services:institute.services});
+                }else{
+                    res.status(404).json({state:false,msg:"Agent Institute Not Found",services:[]});
+                }
+            });
+        } else {
+            res.status(404).json({state:false,msg:"Agent Not Found"});
+        }
+    });
+});
+
+router.put("/service",authAgent,(req,res)=>{
     const id = req.tokenData.id;
     const data = {services:req.body.services};
 
@@ -86,10 +102,8 @@ router.put("/service",authorizeAgent,(req,res)=>{
     });
 });
 
-// Agent need to get the offers he has recieved with details.
-router.get("/offer",authorizeAgent,(req,res)=>{
+router.get("/offer",authAgent,(req,res)=>{
 
-    // id is put to the request body by the authentication middleware after authentication.
     const id = req.tokenData.id;
     const valid_status = ["OPEN","CONVERTED"];
     const fav = req.query.fav;
@@ -97,7 +111,7 @@ router.get("/offer",authorizeAgent,(req,res)=>{
     if (fav=="true"){
         fav_status = [true];
     }
-    // get the offers done by agent.
+
     offer.find({agent:id, status:{ $in: valid_status }, fav:{$in:fav_status}}, (err, offers)=>{
         offer_details_list = [];
         requirement_id_list = [];
@@ -109,54 +123,34 @@ router.get("/offer",authorizeAgent,(req,res)=>{
 
         // get the initial requirements related to the ofers.
         requirement.find({ _id: { $in: requirement_id_list } }, {status:0, _id:0, __v:0}, (err, requirements)=>{
-            client_name_array = [];
-
+            requirement_details = {};
+            offer_details = [];
             // store the corresponding clients who made the requirement
             requirements.map(req=>{
-                // clinet name array can have redundant values as 2 or more requiremnets may have been created by the same client.
-                client_name_array.push(req.client);
+                requirement_details[req._id] = {
+                    "client":req.client,
+                    "amount":req.amount,
+                    "service":req.service,
+                    "notes":req.notes
+                };
             });
 
-            // get the details of respective clients (the retrevied clients can be less than or equal to client_name_array as the above explained reason)
-            client.find({ _id: { $in: client_name_array } }, (err, clients)=>{
-                name_dic = {};
-
-                // store the client names in a dictionary
-                clients.map(client=>{
-                    name_dic[client._id] = client.fullname;
+            offers.map((offer)=>{
+                offer_details.push({
+                    "offerid" : offer._id,
+                    "status":offer.status,
+                    "favourite":offer.fav,
+                    "clientname" : requirement_details[offer.requirementid].client,
+                    "amount":requirement_details[offer.requirementid].amount,
+                    "notes":requirement_details[offer.requirementid].notes
                 });
-
-                const package = req.tokenData.package;
-                const num_of_offers = offers.length;
-
-                var max_view_offers = 2;
-                if (package=="PREMIUM"){
-                    max_view_offers = 5;
-                }
-
-                // store the full offer details with its corresponding clients name who made the requirement.
-                offers.map((_offer,i)=>{
-                    var view_status = false;
-                    if (num_of_offers-max_view_offers<=i){
-                        view_status = true;
-                    }
-
-                    offer_details_list.push({
-                        "offerid" : offers[i]._id,
-                        "status":offers[i].status,
-                        "favourite":offers[i].fav,
-                        "clientname" : name_dic[client_name_array[i]],
-                        "requirement":requirements[i],
-                        "view":view_status
-                    });
-                });
-                res.json({state:true, msg:"Open Offers", offers:offer_details_list});
             });
-        })
-    });
+                res.json({state:true, msg:"All Offers", offers:offer_details});
+            });
+        });
 });
 
-router.patch("/offer",authorizeAgent,(req,res)=>{
+router.patch("/offer",authAgent,(req,res)=>{
     const offerid = req.body.offerid;
     const status = req.body.status;
 
@@ -166,7 +160,7 @@ router.patch("/offer",authorizeAgent,(req,res)=>{
     
 });
 
-router.patch("/offer/fav",authorizeAgent,(req,res)=>{
+router.patch("/offer/fav",authAgent,(req,res)=>{
     const offerid = req.body.offerid;
     const fav = req.body.fav;
 
@@ -176,7 +170,7 @@ router.patch("/offer/fav",authorizeAgent,(req,res)=>{
     
 });
 
-router.get("/package", authorizeAgent, (req,res)=>{
+router.get("/package", authAgent, (req,res)=>{
     const id = req.tokenData.id;
     package_list = [];
 

@@ -2,8 +2,7 @@ const mongoose =  require('mongoose');
 const schema  = mongoose.Schema;
 
 const serviceSchema  = new schema({
-    service:{type:String,required:true},
-    calMethod:{type:Number},
+    _id:{type:String,required:true},
     type:{type:schema.Types.Mixed}
 });
 
