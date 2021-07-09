@@ -16,7 +16,7 @@ module.exports.assignLeads = (id,count)=>{
                         req_ids.push(prev_requirement.requirementid);
                     });
         
-                    requirement.find({service:{$in:agent.services}, count: {$lte: 4}, _id:{$nin:req_ids}}, (err, requirements)=>{
+                    requirement.find({service:{$in:agent.services}, count: {$lte: 20}, _id:{$nin:req_ids}}, (err, requirements)=>{
                         requirements.map(_req=>{
                             const newoffer = new offer({requirementid:_req._id, agent:id, date:new Date()});
                             offer.saveOffer(newoffer,(err,_offer)=>{
