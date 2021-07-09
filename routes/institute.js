@@ -33,7 +33,7 @@ router.post("/", authAdmin, (req,res)=>{
 });
 
 router.delete("/", authAdmin, (req,res)=>{
-    institute.findByIdAndDelete({_id: req.body._id}, (err)=>{
+    institute.findByIdAndDelete({_id: req.body.name}, (err)=>{
         if(err){
             res.status(400).json({state:false,msg:"Bad Request"});
         } else {
