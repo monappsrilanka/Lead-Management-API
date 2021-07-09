@@ -134,6 +134,7 @@ router.get("/offer",authAgent,(req,res)=>{
                     "date":req.date,
                     "amount":req.amount,
                     "service":req.service,
+                    "type":req.type,
                     "notes":req.notes
                 };
             });
@@ -143,11 +144,14 @@ router.get("/offer",authAgent,(req,res)=>{
                     "status":offer.status,
                     "favourite":offer.fav,
                     "clientname" : requirement_details[offer.requirementid].client,
-                    "contact" : requirement_details[offer.requirementid].contact,
-                    "date" : requirement_details[offer.requirementid].date,
-                    "service" : requirement_details[offer.requirementid].service,
-                    "amount":requirement_details[offer.requirementid].amount,
-                    "notes":requirement_details[offer.requirementid].notes
+                    "requirement":{
+                        "client" : requirement_details[offer.requirementid].contact,
+                        "date" : requirement_details[offer.requirementid].date,
+                        "service" : requirement_details[offer.requirementid].service,
+                        "amount":requirement_details[offer.requirementid].amount,
+                        "notes":requirement_details[offer.requirementid].notes,
+                        "type":requirement_details[offer.requirementid].type
+                    }
                 });
             });
                 res.json({state:true, msg:"All Offers", offers:offer_details});
