@@ -122,7 +122,7 @@ router.get("/offer",authAgent,(req,res)=>{
         });
 
         // get the initial requirements related to the ofers.
-        requirement.find({ _id: { $in: requirement_id_list } }, {status:0, _id:0, __v:0}, (err, requirements)=>{
+        requirement.find({ _id: { $in: requirement_id_list } }, {status:0, __v:0}, (err, requirements)=>{
             requirement_details = {};
             offer_details = [];
             // store the corresponding clients who made the requirement
@@ -134,7 +134,6 @@ router.get("/offer",authAgent,(req,res)=>{
                     "notes":req.notes
                 };
             });
-
             offers.map((offer)=>{
                 offer_details.push({
                     "offerid" : offer._id,
