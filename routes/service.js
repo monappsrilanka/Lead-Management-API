@@ -10,7 +10,7 @@ router.get("/", (req,res)=>{
 });
 
 router.post("/", authAdmin,  (req,res)=>{
-    const newService = new service({service:req.body.service, calMethod:req.body.calMethod, type:req.body.type});
+    const newService = new service({service:req.body.service, type:req.body.type});
     
     service.saveService(newService,(err,service)=>{
         if(err){
