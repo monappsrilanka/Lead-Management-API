@@ -103,7 +103,6 @@ router.put("/service",authAgent,(req,res)=>{
 });
 
 router.get("/offer",authAgent,(req,res)=>{
-
     const id = req.tokenData.id;
     const valid_status = ["OPEN","CONVERTED","FAILED"];
     const fav = req.query.fav;
