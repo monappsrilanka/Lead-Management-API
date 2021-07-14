@@ -5,9 +5,15 @@ const {authAdmin} = require('../authenticate');
 
 router.get("/lead", (req,res)=>{
     const status = req.query.status;
+    const id = req.query.ud;
     var search = {};
-    if (status!=null){search = {status:status};}
-   
+    if (status!=null){
+        search.status = status;
+    }
+    if (id!=null){
+        search._id = id;
+    }
+
     requirement.find(search,(err,requirements)=>{
         if (requirements){
             res.status(200).json({state:true, msg:"LEADs", leads:requirements});
