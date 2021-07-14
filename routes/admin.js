@@ -5,7 +5,7 @@ const {authAdmin} = require('../authenticate');
 
 router.get("/lead", (req,res)=>{
     const status = req.query.status;
-    const id = req.query.ud;
+    const id = req.query.id;
     var search = {};
     if (status!=null){
         search.status = status;
