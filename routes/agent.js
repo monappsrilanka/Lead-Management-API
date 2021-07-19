@@ -70,6 +70,18 @@ router.put("/profile", authAgent, (req,res)=>{
     });
 });
 
+router.patch("/profile", authAgent, (req,res)=>{
+    const id = req.tokenData.id;
+    agent.findByIdAndUpdate({_id: id},req.body,{useFindAndModify: false},(err, agent)=> { 
+        if(err){
+            res.status(400).json({state:false,msg:"user not updated"});
+        }
+        if(agent){
+            res.status(200).json({state:true,msg:"User updated"});
+        }
+    });
+});
+
 router.get("/service", authAgent, (req,res)=>{
     const id = req.tokenData.id;
     agent.findById({_id:id},(err,agent)=>{
