@@ -7,6 +7,7 @@ const package = require('../models/package');
 const requirement = require('../models/requirement');
 const {authAgent,generateJWT} = require('../authenticate');
 const {checkHash,assignLeads} = require('../utils');
+const bcrypt = require('bcryptjs');
 
 var mongoose = require('mongoose');
 
@@ -180,6 +181,25 @@ router.patch("/offer",authAgent,(req,res)=>{
         res.json({state:true,msg:"State of the Offer is changed to ".concat(status)});
     });
     
+});
+
+router.patch("/password",authAgent,(req,res)=>{
+    const id = req.tokenData.id;
+    var password = req.body.password;
+
+    bcrypt.genSalt(10,(err,salt)=>{
+        bcrypt.hash(password,salt,(err,hash)=>{
+            password = hash;
+            if (err) throw err;
+            agent.findByIdAndUpdate({_id: id},{password:password},{useFindAndModify: false},(err, agent)=> {
+                if (agent){
+                    res.json({state:true,msg:"Password Chnaged Successfully"});
+                }else{
+                    res.json({state:false,msg:"Password Chnaged Failed"});
+                }
+            });
+        })
+    })   
 });
 
 router.patch("/offer/fav",authAgent,(req,res)=>{
