@@ -33,6 +33,10 @@ app.use('/service',service);
 app.use('/payment', payment);
 app.use('/package', package);
 
+app.get('/', (req, res)=> {
+    res.send('ok');
+});
+
 var port = process.env.PORT || 3000 
 
 app.listen(port,()=>{
