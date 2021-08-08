@@ -214,7 +214,7 @@ router.patch("/password-reset",(req,res)=>{
             if (err) throw err;
             agent.findByIdAndUpdate({_id: id},{password:password},{useFindAndModify: false},(err, agent)=> {
                 if (agent){
-                    const msg = {to: 'sadilchamishka.16@cse.mrt.ac.lk', from: 'monapp@gmail.com',subject: 'Sending with Twilio SendGrid is Fun',
+                    const msg = {to: 'sadilchamishka.16@cse.mrt.ac.lk', from: 'monapp.lk@gmail.com',subject: 'Sending with Twilio SendGrid is Fun',
                                 text: 'and easy to do anywhere, even with Node.js', html: '<strong>and easy to do anywhere, even with Node.js</strong>',};
 
                     sgMail.send(msg).then(() => {
