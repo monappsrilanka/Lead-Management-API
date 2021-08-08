@@ -211,6 +211,7 @@ router.patch("/password-reset",(req,res)=>{
             if (err) throw err;
             agent.findByIdAndUpdate({_id: id},{password:password},{useFindAndModify: false},(err, agent)=> {
                 if (agent){
+                    console.log(agent.email);
                     email.send({
                         host: 'smtp.sendgrid.net',
                         port: '587',
@@ -223,7 +224,9 @@ router.patch("/password-reset",(req,res)=>{
                         subject: 'Password Reset for MON APP',
                         body: password
                     }, (err, result)=>{
+                        console.log("**************************");
                         if (err){
+                            console.log(err);
                             res.json({state:false,msg:"Password Reset Failed"});
                         }else{
                             res.json({state:true,msg:"Password Reset Successfully"});
