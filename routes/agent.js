@@ -14,14 +14,15 @@ var mongoose = require('mongoose');
 
 router.get("/profile", authAgent, (req,res)=>{
     const id = req.tokenData.id;
-    agent.findOne({_id:id}, {password:0}, (doc)=>{
-        if(doc){
-            res.json({state:true,msg:"Agent profile",profile:doc});
-        }  
-        else {
-            res.json({state:false,msg:"Agent not found"});
-        }
-    });
+    let promise = agent.findOne({_id:id}, {password:0}).exec();
+        promise.then((doc)=>{
+            if(doc){
+                res.json({state:true,msg:"Agent profile",profile:doc});
+            }  
+            else {
+                res.json({state:false,msg:"Agent not found"});
+            }
+        });
 });
 
 router.post("/login", (req,res)=>{
