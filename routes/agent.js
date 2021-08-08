@@ -206,16 +206,6 @@ router.patch("/password",authAgent,(req,res)=>{
 });
 
 router.patch("/password-reset",(req,res)=>{
-    var transporter = nodemailer.createTransport({
-        host: "smtp.sendgrid.net",
-        port: 587,
-        secure: false,
-        auth: {
-          user: process.env.SENDGRID_USERNAME, 
-          pass: process.env.SENDGRID_PASSWORD,
-        },
-    });
-    
     var id = req.body.username;
     var password = randomstring.generate(8);
     console.log(password);
