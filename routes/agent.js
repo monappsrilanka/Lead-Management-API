@@ -215,20 +215,14 @@ router.patch("/password-reset",(req,res)=>{
             if (err) throw err;
             agent.findByIdAndUpdate({_id: id},{password:password},{useFindAndModify: false},(err, agent)=> {
                 if (agent){
-                    const msg = {
-                        to: 'sadilchamishka.16@cse.mrt.ac.lk',
-                        from: 'sadilchamishka.16@cse.mrt.ac.lk',
-                        subject: 'Sending with SendGrid is Fun',
-                        text: 'and easy to do anywhere, even with Node.js',
-                        html: '<strong>and easy to do anywhere, even with Node.js</strong>',
-                      }
-                      sgMail.send(msg).then(() => {
-                          console.log('Email sent')
-                        })
-                        .catch((error) => {
-                          console.error(error)
-                        });
-                    res.json({state:true,msg:"Password Reset Successfully"});
+                    const msg = {to: agent.email, from: 'monapp.lk@gmail.com', subject: 'Password Reset MON.LK',text: password};
+                    sgMail.send(msg).then(() => {
+                        res.json({state:true,msg:"Password Reset Successfully"});
+                    }).catch((error) => {
+                        res.json({state:false,msg:"Password Reset Failed"});
+                    });
+                } else {
+                    res.json({state:false,msg:"Password Reset Failed"});
                 }
             });   
         });
