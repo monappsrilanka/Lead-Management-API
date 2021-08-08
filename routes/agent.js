@@ -8,21 +8,20 @@ const requirement = require('../models/requirement');
 const {authAgent,generateJWT} = require('../authenticate');
 const {checkHash,assignLeads} = require('../utils');
 const bcrypt = require('bcryptjs');
-
+var email = require('mailer');
+var randomstring = require("randomstring");
 var mongoose = require('mongoose');
 
 router.get("/profile", authAgent, (req,res)=>{
     const id = req.tokenData.id;
-
-    let promise1 = agent.findOne({_id:id}, {password:0}).exec();
-        promise1.then((doc)=>{
-            if(doc){
-                res.json({state:true,msg:"Agent profile",profile:doc});
-            }  
-            else {
-                res.json({state:false,msg:"Agent not found"});
-            }
-        });
+    agent.findOne({_id:id}, {password:0}, (doc)=>{
+        if(doc){
+            res.json({state:true,msg:"Agent profile",profile:doc});
+        }  
+        else {
+            res.json({state:false,msg:"Agent not found"});
+        }
+    });
 });
 
 router.post("/login", (req,res)=>{
@@ -196,6 +195,42 @@ router.patch("/password",authAgent,(req,res)=>{
                     res.json({state:true,msg:"Password Chnaged Successfully"});
                 }else{
                     res.json({state:false,msg:"Password Chnaged Failed"});
+                }
+            });
+        })
+    })   
+});
+
+router.patch("/password-reset",(req,res)=>{
+    var id = req.body.username;
+    var password = randomstring.generate(8);
+    bcrypt.genSalt(10,(err,salt)=>{
+        bcrypt.hash(password,salt,(err,hash)=>{
+            password = hash;
+            if (err) throw err;
+            agent.findByIdAndUpdate({_id: id},{password:password},{useFindAndModify: false},(err, agent)=> {
+                if (agent){
+                    email.send({
+                        host: 'smtp.sendgrid.net',
+                        port: '587',
+                        authentication: 'plain',
+                        username: process.env.SENDGRID_USERNAME,
+                        password: process.env.SENDGRID_PASSWORD,
+                        domain: 'heroku.com',
+                        to: agent.email,
+                        from: 'monapp@gmail.com',
+                        subject: 'Password Reset for MON APP',
+                        body: password
+                    }, (err, result)=>{
+                        if (err){
+                            res.json({state:false,msg:"Password Reset Failed"});
+                        }else{
+                            res.json({state:true,msg:"Password Reset Successfully"});
+                        }
+                    });
+                    
+                }else{
+                    res.json({state:false,msg:"Password Reset Failed"});
                 }
             });
         })
