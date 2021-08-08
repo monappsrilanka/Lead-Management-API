@@ -8,9 +8,7 @@ const requirement = require('../models/requirement');
 const {authAgent,generateJWT} = require('../authenticate');
 const {checkHash,assignLeads} = require('../utils');
 const bcrypt = require('bcryptjs');
-const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
+const nodemailer = require("nodemailer");
 var randomstring = require("randomstring");
 var mongoose = require('mongoose');
 
@@ -205,6 +203,16 @@ router.patch("/password",authAgent,(req,res)=>{
 });
 
 router.patch("/password-reset",(req,res)=>{
+    var transporter = nodemailer.createTransport({
+        host: "smtp.sendgrid.net",
+        port: 587,
+        secure: false,
+        auth: {
+          user: process.env.SENDGRID_USERNAME, 
+          pass: process.env.SENDGRID_PASSWORD,
+        },
+    });
+    
     var id = req.body.username;
     var password = randomstring.generate(8);
     console.log(password);
@@ -214,18 +222,14 @@ router.patch("/password-reset",(req,res)=>{
             if (err) throw err;
             agent.findByIdAndUpdate({_id: id},{password:password},{useFindAndModify: false},(err, agent)=> {
                 if (agent){
-                    const msg = {to: 'sadilchamishka.16@cse.mrt.ac.lk', from: 'monapp.lk@gmail.com',subject: 'Sending with Twilio SendGrid is Fun',
-                                text: 'and easy to do anywhere, even with Node.js', html: '<strong>and easy to do anywhere, even with Node.js</strong>',};
-
-                    sgMail.send(msg).then(() => {
-                        res.json({state:true,msg:"Password Reset Successfully"});
-                    }, error => {
-                        console.error(error);
-                        if (error.response) {
-                          console.error(error.response.body)
-                        }
-                        res.json({state:true,msg:"Password Reset Failed"});
+                    transporter.sendMail({
+                        from: 'monapp.lk@gmail.com',
+                        to: "sadilchamishka.16@cse.mrt.ac.lk",
+                        subject: 'Password Reset for MON APP',
+                        text: "Hello world?", // plain text body
+                        html: "<b>Hello world?</b>", // html body
                     });
+                    res.json({state:true,msg:"Password Reset Successfully"});
                 }
             });   
         });
