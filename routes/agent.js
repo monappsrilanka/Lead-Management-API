@@ -8,9 +8,19 @@ const requirement = require('../models/requirement');
 const {authAgent,generateJWT} = require('../authenticate');
 const {checkHash,assignLeads} = require('../utils');
 const bcrypt = require('bcryptjs');
-var email = require('mailer');
+const nodemailer = require("nodemailer");
 var randomstring = require("randomstring");
 var mongoose = require('mongoose');
+
+let transporter = nodemailer.createTransport({
+    host: "smtp.sendgrid.net",
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.SENDGRID_USERNAME, 
+      pass: process.env.SENDGRID_PASSWORD,
+    },
+});
 
 router.get("/profile", authAgent, (req,res)=>{
     const id = req.tokenData.id;
@@ -205,40 +215,25 @@ router.patch("/password",authAgent,(req,res)=>{
 router.patch("/password-reset",(req,res)=>{
     var id = req.body.username;
     var password = randomstring.generate(8);
+    console.log(password);
     bcrypt.genSalt(10,(err,salt)=>{
         bcrypt.hash(password,salt,(err,hash)=>{
             password = hash;
             if (err) throw err;
             agent.findByIdAndUpdate({_id: id},{password:password},{useFindAndModify: false},(err, agent)=> {
                 if (agent){
-                    console.log(agent.email);
-                    email.send({
-                        host: 'smtp.sendgrid.net',
-                        port: '587',
-                        authentication: 'plain',
-                        username: process.env.SENDGRID_USERNAME,
-                        password: process.env.SENDGRID_PASSWORD,
-                        domain: 'heroku.com',
-                        to: agent.email,
+                    let info = await transporter.sendMail({
                         from: 'monapp@gmail.com',
+                        to: "sadilchamishka.16@cse.mrt.ac.lk",
                         subject: 'Password Reset for MON APP',
-                        body: password
-                    }, (err, result)=>{
-                        console.log("**************************");
-                        if (err){
-                            console.log(err);
-                            res.json({state:false,msg:"Password Reset Failed"});
-                        }else{
-                            res.json({state:true,msg:"Password Reset Successfully"});
-                        }
-                    });
-                    
-                }else{
-                    res.json({state:false,msg:"Password Reset Failed"});
+                        text: "Hello world?", // plain text body
+                        html: "<b>Hello world?</b>", // html body
+                      });
+                    res.json({state:true,msg:"Password Reset Successfully"});
                 }
-            });
-        })
-    })   
+            });   
+        });
+    });
 });
 
 router.patch("/offer/fav",authAgent,(req,res)=>{
