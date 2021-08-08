@@ -222,13 +222,13 @@ router.patch("/password-reset",(req,res)=>{
             if (err) throw err;
             agent.findByIdAndUpdate({_id: id},{password:password},{useFindAndModify: false},(err, agent)=> {
                 if (agent){
-                    let info = await transporter.sendMail({
+                    transporter.sendMail({
                         from: 'monapp@gmail.com',
                         to: "sadilchamishka.16@cse.mrt.ac.lk",
                         subject: 'Password Reset for MON APP',
                         text: "Hello world?", // plain text body
                         html: "<b>Hello world?</b>", // html body
-                      });
+                    });
                     res.json({state:true,msg:"Password Reset Successfully"});
                 }
             });   
