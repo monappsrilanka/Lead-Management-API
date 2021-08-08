@@ -12,16 +12,6 @@ const nodemailer = require("nodemailer");
 var randomstring = require("randomstring");
 var mongoose = require('mongoose');
 
-let transporter = nodemailer.createTransport({
-    host: "smtp.sendgrid.net",
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.SENDGRID_USERNAME, 
-      pass: process.env.SENDGRID_PASSWORD,
-    },
-});
-
 router.get("/profile", authAgent, (req,res)=>{
     const id = req.tokenData.id;
     let promise = agent.findOne({_id:id}, {password:0}).exec();
@@ -213,6 +203,15 @@ router.patch("/password",authAgent,(req,res)=>{
 });
 
 router.patch("/password-reset",(req,res)=>{
+    var transporter = nodemailer.createTransport({
+        host: "smtp.sendgrid.net",
+        port: 587,
+        secure: false,
+        auth: {
+          user: process.env.SENDGRID_USERNAME, 
+          pass: process.env.SENDGRID_PASSWORD,
+        },
+    });    
     var id = req.body.username;
     var password = randomstring.generate(8);
     console.log(password);
