@@ -211,9 +211,8 @@ router.patch("/password-reset",(req,res)=>{
     console.log(password);
     bcrypt.genSalt(10,(err,salt)=>{
         bcrypt.hash(password,salt,(err,hash)=>{
-            password = hash;
             if (err) throw err;
-            agent.findByIdAndUpdate({_id: id},{password:password},{useFindAndModify: false},(err, agent)=> {
+            agent.findByIdAndUpdate({_id: id},{password:hash},{useFindAndModify: false},(err, agent)=> {
                 if (agent){
                     const msg = {to: agent.email, from: 'monapp.lk@gmail.com', subject: 'Password Reset MON.LK',text: password};
                     sgMail.send(msg).then(() => {
